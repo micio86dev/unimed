@@ -1,7 +1,10 @@
 name: Deploy
 
-# Deploys on pushes to main once CI succeeds. Both jobs no-op gracefully when
-# their platform token secret is not configured, so forks won't fail.
+# Backend deploys to Railway on pushes to main once CI succeeds. The job
+# no-ops gracefully when RAILWAY_TOKEN is not configured, so forks won't fail.
+#
+# The frontend deploys via Vercel's native Git integration (project linked to
+# this repo, Root Directory = apps/frontend), so it is not handled here.
 on:
   workflow_run:
     workflows: ["CI"]
@@ -28,26 +31,3 @@ jobs:
           # Monorepo: deploy only apps/backend as the build root so Nixpacks
           # detects the Laravel app (not the repo-root pnpm workspace).
           railway up apps/backend --path-as-root --service backend --detach
-
-  deploy-frontend:
-    name: Deploy frontend → Vercel
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "VERCEL_TOKEN not set — skipping frontend deploy."
-            exit 0
-          fi
-          npm i -g vercel
-          cd apps/frontend
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-          vercel build --prod --token="$VERCEL_TOKEN"
-          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
