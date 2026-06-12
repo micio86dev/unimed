@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+vendor/
+.pnp.*
+.yarn/*
+.pnpm-store/
+
+# Build output
+dist/
+.output/
+.nuxt/
+.nitro/
+.cache/
+.nuxtrc
+public/build/
+public/hot
+public/storage
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Laravel
+apps/backend/storage/*.key
+apps/backend/storage/framework/cache/*
+apps/backend/storage/framework/sessions/*
+apps/backend/storage/framework/views/*
+apps/backend/storage/logs/*
+apps/backend/bootstrap/cache/*
+!apps/backend/storage/framework/cache/.gitignore
+!apps/backend/storage/framework/sessions/.gitignore
+!apps/backend/storage/framework/views/.gitignore
+apps/backend/.phpunit.cache/
+apps/backend/.phpunit.result.cache
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+apps/backend/coverage/
+
+# Editor / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Misc
+.turbo/
+.vercel/
+
+# Container-generated artifacts inside the frontend bind mount
+apps/frontend/pnpm-lock.yaml
+apps/frontend/pnpm-workspace.yaml

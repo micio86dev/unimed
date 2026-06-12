@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Format & lint only the staged files (fast, via lint-staged → Biome).
+pnpm exec lint-staged

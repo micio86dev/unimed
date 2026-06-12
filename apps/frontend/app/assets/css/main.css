@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+|--------------------------------------------------------------------------
+| Design tokens — UniMed
+|--------------------------------------------------------------------------
+| A clean, spacious, professional SaaS palette built around the brand blue
+| (#0F5EFF). Tokens follow the shadcn-vue convention so primitives compose.
+*/
+:root {
+  --background: #ffffff;
+  --foreground: #0b1220;
+
+  --card: #ffffff;
+  --card-foreground: #0b1220;
+
+  --popover: #ffffff;
+  --popover-foreground: #0b1220;
+
+  --primary: #0f5eff;
+  --primary-foreground: #ffffff;
+
+  --secondary: #eaf3ff;
+  --secondary-foreground: #0a47cc;
+
+  --muted: #f4f6fb;
+  --muted-foreground: #64748b;
+
+  --accent: #eaf3ff;
+  --accent-foreground: #0a47cc;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+
+  --border: #e6eaf2;
+  --input: #e2e8f0;
+  --ring: #0f5eff;
+
+  /* Subject accent colours (mirror the backend seed). */
+  --subject-biology: #16a34a;
+  --subject-chemistry: #9333ea;
+  --subject-physics: #0891b2;
+  --subject-mathematics: #ea580c;
+  --subject-logic: #0f5eff;
+
+  --radius: 0.7rem;
+}
+
+.dark {
+  --background: #0a0e17;
+  --foreground: #e6eaf2;
+
+  --card: #0f1420;
+  --card-foreground: #e6eaf2;
+
+  --popover: #0f1420;
+  --popover-foreground: #e6eaf2;
+
+  --primary: #4f86ff;
+  --primary-foreground: #06122b;
+
+  --secondary: #15233f;
+  --secondary-foreground: #cfe0ff;
+
+  --muted: #131a28;
+  --muted-foreground: #94a3b8;
+
+  --accent: #15233f;
+  --accent-foreground: #cfe0ff;
+
+  --destructive: #f0656a;
+  --destructive-foreground: #1a0608;
+
+  --success: #34d27b;
+  --success-foreground: #04140a;
+
+  --warning: #fbbf24;
+  --warning-foreground: #1a1203;
+
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #4f86ff;
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-subject-biology: var(--subject-biology);
+  --color-subject-chemistry: var(--subject-chemistry);
+  --color-subject-physics: var(--subject-physics);
+  --color-subject-mathematics: var(--subject-mathematics);
+  --color-subject-logic: var(--subject-logic);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+}
+
+/* Page transitions (Nuxt) */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+/* A tidy thin scrollbar that matches the UI. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* Reusable rich-text rendering for question explanations. */
+.prose-question :where(p):not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+.prose-question :where(ul) {
+  list-style: disc;
+  padding-left: 1.25rem;
+}

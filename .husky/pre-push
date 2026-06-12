@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# Type-check and run the test suites before pushing.
+set -e
+
+echo "▶ Type-checking frontend…"
+pnpm --filter @unimed/frontend typecheck
+
+echo "▶ Running frontend unit tests…"
+pnpm --filter @unimed/frontend test
+
+# Backend tests run only when the PHP toolchain is available locally.
+if [ -f apps/backend/vendor/bin/pest ]; then
+  echo "▶ Running backend tests…"
+  (cd apps/backend && ./vendor/bin/pest)
+else
+  echo "ℹ Skipping backend tests (composer dependencies not installed)."
+fi
