@@ -2,12 +2,14 @@
 import { History, LayoutDashboard, ListChecks, Trophy } from 'lucide-vue-next'
 import type { NavItem } from '~/components/AppShell.vue'
 
-const nav: NavItem[] = [
-  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
-  { label: 'Quizzes', to: '/quizzes', icon: ListChecks },
-  { label: 'Rankings', to: '/rankings', icon: Trophy },
-  { label: 'My attempts', to: '/history', icon: History },
-]
+const { t } = useI18n()
+
+const nav = computed<NavItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/dashboard', icon: LayoutDashboard },
+  { label: t('nav.quizzes'), to: '/quizzes', icon: ListChecks },
+  { label: t('nav.rankings'), to: '/rankings', icon: Trophy },
+  { label: t('nav.history'), to: '/history', icon: History },
+])
 </script>
 
 <template>

@@ -50,7 +50,9 @@ class QuestionController extends Controller
                 'type' => $request->enum('type', QuestionType::class),
                 'difficulty' => $request->enum('difficulty', Difficulty::class),
                 'text' => (string) $request->input('text'),
+                'text_it' => $request->input('text_it'),
                 'explanation' => $request->input('explanation'),
+                'explanation_it' => $request->input('explanation_it'),
                 'image_path' => $request->input('image_path'),
                 'is_active' => $request->boolean('is_active', true),
                 'created_by' => $request->user()->id,
@@ -65,7 +67,7 @@ class QuestionController extends Controller
 
         return ApiResponse::success(
             new QuestionResource($question->load(['subject', 'answers'])),
-            'Question created.',
+            __('messages.question.created'),
             201,
         );
     }
@@ -83,7 +85,9 @@ class QuestionController extends Controller
                 'type' => $request->enum('type', QuestionType::class),
                 'difficulty' => $request->enum('difficulty', Difficulty::class),
                 'text' => (string) $request->input('text'),
+                'text_it' => $request->input('text_it'),
                 'explanation' => $request->input('explanation'),
+                'explanation_it' => $request->input('explanation_it'),
                 'image_path' => $request->input('image_path'),
                 'is_active' => $request->boolean('is_active', true),
             ]);
@@ -96,7 +100,7 @@ class QuestionController extends Controller
 
         return ApiResponse::success(
             new QuestionResource($question->fresh(['subject', 'answers'])),
-            'Question updated.',
+            __('messages.question.updated'),
         );
     }
 
@@ -105,7 +109,7 @@ class QuestionController extends Controller
         $this->activity->log('question.deleted', 'Deleted a question', $question);
         $question->delete();
 
-        return ApiResponse::message('Question deleted.');
+        return ApiResponse::message(__('messages.question.deleted'));
     }
 
     /**
@@ -117,6 +121,7 @@ class QuestionController extends Controller
         $rows = array_map(static function (array $answer) use (&$position): array {
             return [
                 'text' => $answer['text'],
+                'text_it' => $answer['text_it'] ?? null,
                 'is_correct' => filter_var($answer['is_correct'] ?? false, FILTER_VALIDATE_BOOL),
                 'position' => $position++,
             ];

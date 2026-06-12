@@ -25,7 +25,7 @@ class EnsureUserIsActive
             }
 
             return response()->json([
-                'message' => 'Your account has been disabled. Please contact an administrator.',
+                'message' => __('messages.auth.account_disabled'),
             ], Response::HTTP_FORBIDDEN);
         }
 

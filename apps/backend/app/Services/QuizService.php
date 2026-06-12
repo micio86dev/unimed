@@ -27,8 +27,10 @@ final class QuizService
         return DB::transaction(function () use ($data, $questionIds, $author): Quiz {
             $quiz = Quiz::create([
                 'title' => $data['title'],
+                'title_it' => $data['title_it'] ?? null,
                 'slug' => $this->uniqueSlug($data['title']),
                 'description' => $data['description'] ?? null,
+                'description_it' => $data['description_it'] ?? null,
                 'time_limit_minutes' => $data['time_limit_minutes'] ?? null,
                 'difficulty' => $data['difficulty'] ?? null,
                 'is_published' => $data['is_published'] ?? false,
@@ -68,8 +70,10 @@ final class QuizService
         return DB::transaction(function () use ($data, $questionIds, $subjectIds, $difficulty, $author): Quiz {
             $quiz = Quiz::create([
                 'title' => $data['title'],
+                'title_it' => $data['title_it'] ?? null,
                 'slug' => $this->uniqueSlug($data['title']),
                 'description' => $data['description'] ?? null,
+                'description_it' => $data['description_it'] ?? null,
                 'time_limit_minutes' => $data['time_limit_minutes'] ?? null,
                 'difficulty' => $difficulty,
                 'is_published' => $data['is_published'] ?? false,

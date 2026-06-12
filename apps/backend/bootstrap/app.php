@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
@@ -29,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
         ]);
 
+        // Resolve IT/EN from the request so API messages come back localized.
+        $middleware->api(prepend: [SetLocale::class]);
+
         // Rate-limit the whole API; auth endpoints add a tighter limiter.
         $middleware->throttleApi();
     })
@@ -40,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json(['message' => 'Resource not found.'], Response::HTTP_NOT_FOUND);
+                return response()->json(['message' => __('messages.common.not_found')], Response::HTTP_NOT_FOUND);
             }
 
             return null;
@@ -48,7 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json(['message' => 'Resource not found.'], Response::HTTP_NOT_FOUND);
+                return response()->json(['message' => __('messages.common.not_found')], Response::HTTP_NOT_FOUND);
             }
 
             return null;
@@ -56,7 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
-                return response()->json(['message' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
+                return response()->json(['message' => __('messages.auth.unauthenticated')], Response::HTTP_UNAUTHORIZED);
             }
 
             return null;

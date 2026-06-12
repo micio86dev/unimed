@@ -78,6 +78,7 @@ final class AnalyticsService
 
             return [
                 'subject' => $subject->name,
+                'subject_it' => $subject->name_it ?? $subject->name,
                 'slug' => $subject->slug,
                 'color' => $subject->color,
                 'total' => $total,
@@ -93,7 +94,7 @@ final class AnalyticsService
     public function studentRecentAttempts(User $user, int $limit = 5): array
     {
         return QuizAttempt::query()
-            ->with('quiz:id,title,slug')
+            ->with('quiz:id,title,title_it,slug')
             ->where('user_id', $user->id)
             ->where('status', AttemptStatus::Completed->value)
             ->latest('completed_at')
@@ -102,6 +103,7 @@ final class AnalyticsService
             ->map(static fn (QuizAttempt $a): array => [
                 'id' => $a->id,
                 'quiz' => $a->quiz?->title,
+                'quiz_it' => $a->quiz?->title_it ?? $a->quiz?->title,
                 'quiz_slug' => $a->quiz?->slug,
                 'percentage' => (float) $a->percentage,
                 'correct_count' => $a->correct_count,
@@ -175,8 +177,8 @@ final class AnalyticsService
             ->join('subjects as s', 's.id', '=', 'q.subject_id')
             ->where('qa.status', AttemptStatus::Completed->value)
             ->where('qaa.is_answered', $this->trueLiteral())
-            ->groupBy('s.id', 's.name', 's.slug', 's.color')
-            ->selectRaw('s.name, s.slug, s.color')
+            ->groupBy('s.id', 's.name', 's.name_it', 's.slug', 's.color')
+            ->selectRaw('s.name, s.name_it, s.slug, s.color')
             ->selectRaw('COUNT(*) as total')
             ->selectRaw('SUM(CASE WHEN qaa.is_correct = '.$this->trueLiteral().' THEN 1 ELSE 0 END) as correct')
             ->get();
@@ -187,6 +189,7 @@ final class AnalyticsService
 
             return [
                 'subject' => $row->name,
+                'subject_it' => $row->name_it ?? $row->name,
                 'slug' => $row->slug,
                 'color' => $row->color,
                 'accuracy' => $total > 0 ? round(($correct / $total) * 100, 1) : 0.0,

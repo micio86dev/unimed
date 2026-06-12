@@ -3,6 +3,7 @@ definePageMeta({ layout: 'auth', middleware: 'guest' })
 
 const auth = useAuthStore()
 const route = useRoute()
+const { t } = useI18n()
 const { error: toastError } = useToast()
 
 const form = reactive({ email: '', password: '', remember: true })
@@ -19,7 +20,7 @@ async function submit() {
   } catch (e) {
     errors.value = apiValidationErrors(e)
     if (Object.keys(errors.value).length === 0) {
-      toastError('Could not sign in', apiErrorMessage(e))
+      toastError(t('auth.signingIn'), apiErrorMessage(e))
     }
   } finally {
     loading.value = false
@@ -34,14 +35,17 @@ function fillDemo(role: 'admin' | 'student') {
 
 <template>
   <div>
-    <div class="mb-8">
-      <h1 class="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p class="mt-1 text-sm text-muted-foreground">Sign in to continue your preparation.</p>
+    <div class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">{{ $t('auth.welcomeBack') }}</h1>
+        <p class="mt-1 text-sm text-muted-foreground">{{ $t('auth.signInToContinue') }}</p>
+      </div>
+      <LanguageSwitcher />
     </div>
 
     <form class="space-y-4" @submit.prevent="submit">
       <div class="space-y-1.5">
-        <Label for="email">Email</Label>
+        <Label for="email">{{ $t('auth.email') }}</Label>
         <Input
           id="email"
           v-model="form.email"
@@ -55,9 +59,9 @@ function fillDemo(role: 'admin' | 'student') {
 
       <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-          <Label for="password">Password</Label>
+          <Label for="password">{{ $t('auth.password') }}</Label>
           <NuxtLink to="/forgot-password" class="text-xs font-medium text-primary hover:underline">
-            Forgot password?
+            {{ $t('auth.forgotPassword') }}
           </NuxtLink>
         </div>
         <Input
@@ -73,17 +77,22 @@ function fillDemo(role: 'admin' | 'student') {
 
       <label class="flex items-center gap-2 text-sm">
         <input v-model="form.remember" type="checkbox" class="size-4 rounded border-input text-primary focus:ring-ring">
-        <span class="text-muted-foreground">Remember me for 30 days</span>
+        <span class="text-muted-foreground">{{ $t('auth.rememberMe') }}</span>
       </label>
 
-      <Button type="submit" size="lg" class="w-full" :loading="loading">Sign in</Button>
+      <Button type="submit" size="lg" class="w-full" :loading="loading">{{ $t('auth.signIn') }}</Button>
     </form>
 
+    <p class="mt-6 text-center text-sm text-muted-foreground">
+      {{ $t('auth.noAccount') }}
+      <NuxtLink to="/register" class="font-medium text-primary hover:underline">{{ $t('auth.createAccount') }}</NuxtLink>
+    </p>
+
     <div class="mt-6 rounded-lg border border-dashed border-border bg-muted/40 p-3">
-      <p class="text-xs font-medium text-muted-foreground">Demo accounts — click to fill</p>
+      <p class="text-xs font-medium text-muted-foreground">{{ $t('auth.demoAccounts') }}</p>
       <div class="mt-2 flex gap-2">
-        <Button variant="outline" size="sm" class="flex-1" @click="fillDemo('student')">Student</Button>
-        <Button variant="outline" size="sm" class="flex-1" @click="fillDemo('admin')">Admin</Button>
+        <Button variant="outline" size="sm" class="flex-1" @click="fillDemo('student')">{{ $t('auth.student') }}</Button>
+        <Button variant="outline" size="sm" class="flex-1" @click="fillDemo('admin')">{{ $t('auth.admin') }}</Button>
       </div>
     </div>
   </div>

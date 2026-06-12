@@ -5,7 +5,8 @@ import type { StudentAnalytics } from '~/types'
 definePageMeta({ middleware: 'auth' })
 
 const auth = useAuthStore()
-const firstName = computed(() => auth.user?.name?.split(' ')[0] ?? 'there')
+const { t, tf } = useI18n()
+const firstName = computed(() => auth.user?.name?.split(' ')[0] ?? '')
 
 const { data, pending } = await useAsyncData('student-analytics', () =>
   useApi()<{ data: StudentAnalytics }>('/analytics/student').then((r) => r.data),
@@ -13,7 +14,7 @@ const { data, pending } = await useAsyncData('student-analytics', () =>
 
 const subjectBars = computed(() =>
   (data.value?.subject_performance ?? []).map((s) => ({
-    label: s.subject,
+    label: tf(s, 'subject'),
     value: s.accuracy,
     color: s.color,
     meta: `${s.correct}/${s.total}`,
@@ -24,10 +25,10 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
 
 <template>
   <div class="space-y-8">
-    <PageHeader :title="`Good to see you, ${firstName} 👋`" description="Here's how your preparation is going.">
+    <PageHeader :title="t('dashboard.greeting', { name: firstName })" :description="t('dashboard.subtitle')">
       <template #actions>
         <Button @click="navigateTo('/quizzes')">
-          Browse quizzes <ArrowRight class="size-4" />
+          {{ $t('dashboard.browseQuizzes') }} <ArrowRight class="size-4" />
         </Button>
       </template>
     </PageHeader>
@@ -38,10 +39,10 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
         <Skeleton v-for="i in 4" :key="i" class="h-[108px] rounded-xl" />
       </template>
       <template v-else>
-        <StatCard label="Completed quizzes" :value="data?.kpis.completed_quizzes ?? 0" :icon="CheckCircle2" tone="primary" />
-        <StatCard label="Average score" :value="formatPercent(data?.kpis.average_score, 1)" :icon="Target" tone="success" />
-        <StatCard label="Best score" :value="formatPercent(data?.kpis.best_score, 1)" :icon="Trophy" tone="warning" />
-        <StatCard label="Avg. completion time" :value="formatDuration(data?.kpis.average_time_seconds)" :icon="Clock" tone="primary" />
+        <StatCard :label="$t('dashboard.completedQuizzes')" :value="data?.kpis.completed_quizzes ?? 0" :icon="CheckCircle2" tone="primary" />
+        <StatCard :label="$t('dashboard.averageScore')" :value="formatPercent(data?.kpis.average_score, 1)" :icon="Target" tone="success" />
+        <StatCard :label="$t('dashboard.bestScore')" :value="formatPercent(data?.kpis.best_score, 1)" :icon="Trophy" tone="warning" />
+        <StatCard :label="$t('dashboard.avgTime')" :value="formatDuration(data?.kpis.average_time_seconds)" :icon="Clock" tone="primary" />
       </template>
     </div>
 
@@ -49,8 +50,8 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
       <!-- Subject performance -->
       <Card class="lg:col-span-3">
         <CardHeader>
-          <CardTitle>Performance by subject</CardTitle>
-          <CardDescription>Accuracy across all your completed attempts.</CardDescription>
+          <CardTitle>{{ $t('dashboard.performanceBySubject') }}</CardTitle>
+          <CardDescription>{{ $t('dashboard.performanceBySubjectDesc') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <div v-if="pending" class="space-y-4">
@@ -60,8 +61,8 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
           <EmptyState
             v-else
             :icon="Sparkles"
-            title="No data yet"
-            description="Complete a quiz to see your subject performance."
+            :title="$t('common.noDataYet')"
+            :description="$t('dashboard.completeToSee')"
           />
         </CardContent>
       </Card>
@@ -70,12 +71,12 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
       <div class="space-y-6 lg:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>Score trend</CardTitle>
-            <CardDescription>Your last attempts.</CardDescription>
+            <CardTitle>{{ $t('dashboard.scoreTrend') }}</CardTitle>
+            <CardDescription>{{ $t('dashboard.yourLastAttempts') }}</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartsLineChart v-if="trendValues.length" :values="trendValues" :height="80" />
-            <p v-else class="py-6 text-center text-sm text-muted-foreground">Not enough data yet.</p>
+            <p v-else class="py-6 text-center text-sm text-muted-foreground">{{ $t('common.notEnoughData') }}</p>
           </CardContent>
         </Card>
         <Card class="bg-primary text-primary-foreground">
@@ -84,7 +85,7 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
               <Sparkles class="size-6" />
             </div>
             <div>
-              <p class="text-sm text-primary-foreground/80">Total points</p>
+              <p class="text-sm text-primary-foreground/80">{{ $t('dashboard.totalPoints') }}</p>
               <p class="text-2xl font-bold tabular-nums">{{ data?.kpis.total_points ?? 0 }}</p>
             </div>
           </CardContent>
@@ -96,10 +97,10 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
     <Card>
       <CardHeader class="flex-row items-center justify-between">
         <div>
-          <CardTitle>Recent activity</CardTitle>
-          <CardDescription>Your latest quiz attempts.</CardDescription>
+          <CardTitle>{{ $t('dashboard.recentActivity') }}</CardTitle>
+          <CardDescription>{{ $t('dashboard.latestAttempts') }}</CardDescription>
         </div>
-        <Button variant="ghost" size="sm" @click="navigateTo('/history')">View all</Button>
+        <Button variant="ghost" size="sm" @click="navigateTo('/history')">{{ $t('common.viewAll') }}</Button>
       </CardHeader>
       <CardContent>
         <div v-if="pending" class="space-y-3">
@@ -108,10 +109,10 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
         <EmptyState
           v-else-if="!data?.recent_attempts.length"
           :icon="CheckCircle2"
-          title="No attempts yet"
-          description="Start your first quiz to track your progress."
+          :title="$t('dashboard.noAttempts')"
+          :description="$t('dashboard.startFirst')"
         >
-          <Button @click="navigateTo('/quizzes')">Start a quiz</Button>
+          <Button @click="navigateTo('/quizzes')">{{ $t('dashboard.startQuiz') }}</Button>
         </EmptyState>
         <ul v-else class="divide-y divide-border">
           <li
@@ -124,7 +125,7 @@ const trendValues = computed(() => (data.value?.score_trend ?? []).map((p) => p.
               <Trophy class="size-5" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium">{{ a.quiz }}</p>
+              <p class="truncate text-sm font-medium">{{ $tf(a, 'quiz') }}</p>
               <p class="text-xs text-muted-foreground">{{ formatRelative(a.completed_at) }}</p>
             </div>
             <div class="text-right">

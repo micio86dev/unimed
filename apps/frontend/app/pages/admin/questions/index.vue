@@ -4,6 +4,7 @@ import type { Paginated, Question, Subject } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
+const { t, tf } = useI18n()
 const { success, error: toastError } = useToast()
 
 const search = ref('')
@@ -54,40 +55,40 @@ async function confirmDelete() {
   deleting.value = true
   try {
     await useApi()(`/admin/questions/${deleteTarget.value.id}`, { method: 'DELETE' })
-    success('Question deleted')
+    success(t('admin.questionDeleted'))
     deleteTarget.value = null
     await refresh()
   } catch (e) {
-    toastError('Could not delete', apiErrorMessage(e))
+    toastError(t('admin.couldNotDelete'), apiErrorMessage(e))
   } finally {
     deleting.value = false
   }
 }
 
 const subjectOptions = computed(() => [
-  { label: 'All subjects', value: '' },
-  ...subjects.value.map((s) => ({ label: s.name, value: String(s.id) })),
+  { label: t('admin.allSubjects'), value: '' },
+  ...subjects.value.map((s) => ({ label: tf(s, 'name'), value: String(s.id) })),
 ])
-const difficultyOptions = [
-  { label: 'All difficulties', value: '' },
-  { label: 'Easy', value: 'easy' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Hard', value: 'hard' },
-]
+const difficultyOptions = computed(() => [
+  { label: t('admin.allDifficulties'), value: '' },
+  { label: t('difficulty.easy'), value: 'easy' },
+  { label: t('difficulty.medium'), value: 'medium' },
+  { label: t('difficulty.hard'), value: 'hard' },
+])
 </script>
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Questions" description="Manage the question bank.">
+    <PageHeader :title="$t('admin.questionsTitle')" :description="$t('admin.questionsSubtitle')">
       <template #actions>
-        <Button @click="openCreate"><Plus class="size-4" /> New question</Button>
+        <Button @click="openCreate"><Plus class="size-4" /> {{ $t('admin.newQuestion') }}</Button>
       </template>
     </PageHeader>
 
     <div class="flex flex-col gap-3 sm:flex-row">
       <div class="relative flex-1">
         <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input v-model="search" placeholder="Search questions…" class="pl-9" />
+        <Input v-model="search" :placeholder="$t('admin.searchQuestions')" class="pl-9" />
       </div>
       <Select v-model="subjectId" :options="subjectOptions" class="sm:w-44" />
       <Select v-model="difficulty" :options="difficultyOptions" class="sm:w-44" />
@@ -96,24 +97,24 @@ const difficultyOptions = [
     <Card>
       <CardContent class="p-0">
         <div v-if="pending" class="space-y-2 p-4"><Skeleton v-for="i in 8" :key="i" class="h-14" /></div>
-        <EmptyState v-else-if="!data?.data.length" :icon="CircleHelp" title="No questions found" description="Try adjusting filters or create a new one." class="m-6" />
+        <EmptyState v-else-if="!data?.data.length" :icon="CircleHelp" :title="$t('admin.noQuestions')" :description="$t('admin.noQuestionsDesc')" class="m-6" />
         <ul v-else class="divide-y divide-border">
           <li v-for="q in data.data" :key="q.id" class="flex items-start gap-4 px-4 py-3.5 sm:px-6">
             <SubjectIcon :slug="q.subject?.slug" :color="q.subject?.color" size="sm" class="mt-0.5" />
             <div class="min-w-0 flex-1">
-              <p class="line-clamp-2 text-sm font-medium">{{ q.text }}</p>
+              <p class="line-clamp-2 text-sm font-medium">{{ $tf(q, 'text') }}</p>
               <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <Badge variant="secondary">{{ q.subject?.name }}</Badge>
+                <Badge variant="secondary">{{ $tf(q.subject, 'name') }}</Badge>
                 <DifficultyBadge :difficulty="q.difficulty" />
-                <Badge variant="muted">{{ q.type === 'single' ? 'Single' : 'Multiple' }}</Badge>
-                <Badge v-if="!q.is_active" variant="outline">Inactive</Badge>
+                <Badge variant="muted">{{ q.type === 'single' ? $t('admin.single') : $t('admin.multiple') }}</Badge>
+                <Badge v-if="!q.is_active" variant="outline">{{ $t('admin.inactive') }}</Badge>
               </div>
             </div>
             <div class="flex shrink-0 items-center gap-1">
-              <button class="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground" @click="openEdit(q)">
+              <button class="cursor-pointer rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground" @click="openEdit(q)">
                 <Pencil class="size-4" />
               </button>
-              <button class="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" @click="deleteTarget = q">
+              <button class="cursor-pointer rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" @click="deleteTarget = q">
                 <Trash2 class="size-4" />
               </button>
             </div>
@@ -123,20 +124,20 @@ const difficultyOptions = [
     </Card>
 
     <div v-if="data && data.meta.last_page > 1" class="flex items-center justify-between">
-      <p class="text-sm text-muted-foreground">{{ data.meta.total }} questions · page {{ data.meta.current_page }} of {{ data.meta.last_page }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t('admin.questionsCountLabel', { total: data.meta.total, current: data.meta.current_page, pages: data.meta.last_page }) }}</p>
       <div class="flex gap-2">
-        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">Previous</Button>
-        <Button variant="outline" size="sm" :disabled="page >= data.meta.last_page" @click="page++">Next</Button>
+        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">{{ $t('common.previous') }}</Button>
+        <Button variant="outline" size="sm" :disabled="page >= data.meta.last_page" @click="page++">{{ $t('common.next') }}</Button>
       </div>
     </div>
 
     <AdminQuestionFormModal v-model:open="modalOpen" :question="editing" :subjects="subjects" @saved="refresh" />
 
-    <Modal :open="!!deleteTarget" title="Delete question?" description="This action cannot be undone." @update:open="(v) => !v && (deleteTarget = null)">
-      <p class="line-clamp-3 rounded-lg bg-muted/50 p-3 text-sm">{{ deleteTarget?.text }}</p>
+    <Modal :open="!!deleteTarget" :title="$t('admin.deleteQuestionTitle')" :description="$t('admin.cannotUndo')" @update:open="(v) => !v && (deleteTarget = null)">
+      <p class="line-clamp-3 rounded-lg bg-muted/50 p-3 text-sm">{{ $tf(deleteTarget, 'text') }}</p>
       <div class="mt-5 flex justify-end gap-2">
-        <Button variant="outline" @click="deleteTarget = null">Cancel</Button>
-        <Button variant="destructive" :loading="deleting" @click="confirmDelete">Delete</Button>
+        <Button variant="outline" @click="deleteTarget = null">{{ $t('admin.cancel') }}</Button>
+        <Button variant="destructive" :loading="deleting" @click="confirmDelete">{{ $t('admin.delete') }}</Button>
       </div>
     </Modal>
   </div>

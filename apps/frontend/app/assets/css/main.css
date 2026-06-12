@@ -139,6 +139,28 @@
     scroll-behavior: smooth;
   }
 
+  /*
+   | General UI/UX rule: every interactive/clickable element shows the pointer
+   | cursor. Tailwind v4's preflight no longer sets this on buttons, so we add
+   | it globally for buttons, links, role=button, labels and selects. Disabled
+   | controls revert to the not-allowed cursor.
+   */
+  button,
+  [role="button"],
+  a[href],
+  summary,
+  label[for],
+  select,
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  [disabled] {
+    cursor: not-allowed;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);

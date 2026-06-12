@@ -22,7 +22,9 @@ class UpdateQuizRequest extends FormRequest
     {
         return [
             'title' => ['sometimes', 'string', 'max:255'],
+            'title_it' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
+            'description_it' => ['nullable', 'string', 'max:2000'],
             'time_limit_minutes' => ['nullable', 'integer', 'min:1', 'max:600'],
             'difficulty' => ['nullable', Rule::in(Difficulty::values())],
             'is_published' => ['sometimes', 'boolean'],

@@ -4,6 +4,7 @@ import type { AttemptSummary, Paginated } from '~/types'
 
 definePageMeta({ middleware: 'auth' })
 
+const { t } = useI18n()
 const page = ref(1)
 const { data, pending } = await useAsyncData(
   'attempt-history',
@@ -17,7 +18,7 @@ const { data, pending } = await useAsyncData(
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="My attempts" description="Revisit every quiz you've completed." />
+    <PageHeader :title="$t('history.title')" :description="$t('history.subtitle')" />
 
     <Card>
       <CardContent class="p-0">
@@ -28,11 +29,11 @@ const { data, pending } = await useAsyncData(
         <EmptyState
           v-else-if="!data?.data.length"
           :icon="HistoryIcon"
-          title="No attempts yet"
-          description="Once you complete a quiz, it will appear here."
+          :title="$t('history.noHistory')"
+          :description="$t('history.noHistoryDesc')"
           class="m-6"
         >
-          <Button @click="navigateTo('/quizzes')">Browse quizzes</Button>
+          <Button @click="navigateTo('/quizzes')">{{ $t('history.browseQuizzes') }}</Button>
         </EmptyState>
 
         <ul v-else class="divide-y divide-border">
@@ -47,16 +48,16 @@ const { data, pending } = await useAsyncData(
               <span class="text-[10px] text-muted-foreground">%</span>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate font-medium">{{ a.quiz?.title ?? 'Quiz' }}</p>
+              <p class="truncate font-medium">{{ $tf(a.quiz, 'title') || $t('history.quiz') }}</p>
               <p class="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{{ formatDate(a.completed_at) }}</span>
                 <span>·</span>
-                <span>{{ a.correct_count }}/{{ a.total_questions }} correct</span>
+                <span>{{ a.correct_count }}/{{ a.total_questions }} {{ $t('history.correctSuffix') }}</span>
                 <span class="hidden sm:inline">·</span>
                 <span class="hidden sm:inline">{{ formatDuration(a.time_spent_seconds) }}</span>
               </p>
             </div>
-            <Badge variant="muted" class="hidden sm:inline-flex">{{ a.points }} pts</Badge>
+            <Badge variant="muted" class="hidden sm:inline-flex">{{ a.points }} {{ $t('history.pts') }}</Badge>
             <ChevronRight class="size-4 text-muted-foreground" />
           </li>
         </ul>
@@ -64,10 +65,10 @@ const { data, pending } = await useAsyncData(
     </Card>
 
     <div v-if="data && data.meta.last_page > 1" class="flex items-center justify-between">
-      <p class="text-sm text-muted-foreground">Page {{ data.meta.current_page }} of {{ data.meta.last_page }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t('history.pageOf', { current: data.meta.current_page, total: data.meta.last_page }) }}</p>
       <div class="flex gap-2">
-        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">Previous</Button>
-        <Button variant="outline" size="sm" :disabled="page >= data.meta.last_page" @click="page++">Next</Button>
+        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">{{ $t('common.previous') }}</Button>
+        <Button variant="outline" size="sm" :disabled="page >= data.meta.last_page" @click="page++">{{ $t('common.next') }}</Button>
       </div>
     </div>
   </div>

@@ -19,8 +19,10 @@ export interface User {
 export interface Subject {
   id: number
   name: string
+  name_it?: string | null
   slug: string
   description: string | null
+  description_it?: string | null
   color: string
   icon: string | null
   position: number
@@ -30,6 +32,7 @@ export interface Subject {
 export interface Answer {
   id: number
   text: string
+  text_it?: string | null
   is_correct?: boolean
   position?: number
 }
@@ -43,7 +46,9 @@ export interface Question {
   difficulty: Difficulty
   difficulty_label?: string
   text: string
+  text_it?: string | null
   explanation: string | null
+  explanation_it?: string | null
   image_url: string | null
   is_active: boolean
   answers?: Answer[]
@@ -54,8 +59,10 @@ export interface Question {
 export interface Quiz {
   id: number
   title: string
+  title_it?: string | null
   slug: string
   description: string | null
+  description_it?: string | null
   time_limit_minutes: number | null
   question_count: number
   difficulty: Difficulty | null

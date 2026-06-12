@@ -13,10 +13,13 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   use: {
     baseURL,
+    // The suite asserts English copy; pin the browser locale so the app's
+    // auto-detect resolves to English (not the machine's locale).
+    locale: 'en-US',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], locale: 'en-US' } }],
   webServer: {
     command: 'pnpm dev',
     url: baseURL,

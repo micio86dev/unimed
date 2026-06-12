@@ -24,7 +24,7 @@ const podiumStyle: Record<number, string> = {
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Leaderboard" description="See how you stack up against other candidates." />
+    <PageHeader :title="$t('rankings.leaderboard')" :description="$t('rankings.subtitle')" />
 
     <!-- My position -->
     <Card v-if="me?.ranking" class="bg-primary text-primary-foreground">
@@ -34,22 +34,22 @@ const podiumStyle: Record<number, string> = {
             #{{ me.ranking.position }}
           </div>
           <div>
-            <p class="text-sm text-primary-foreground/80">Your position</p>
+            <p class="text-sm text-primary-foreground/80">{{ $t('rankings.yourPosition') }}</p>
             <p class="text-lg font-semibold">{{ auth.user?.name }}</p>
           </div>
         </div>
         <div class="flex gap-6 text-center">
           <div>
             <p class="text-2xl font-bold tabular-nums">{{ me.ranking.total_points }}</p>
-            <p class="text-xs text-primary-foreground/80">Points</p>
+            <p class="text-xs text-primary-foreground/80">{{ $t('rankings.points') }}</p>
           </div>
           <div>
             <p class="text-2xl font-bold tabular-nums">{{ formatPercent(me.ranking.average_score, 1) }}</p>
-            <p class="text-xs text-primary-foreground/80">Avg score</p>
+            <p class="text-xs text-primary-foreground/80">{{ $t('rankings.avgScore') }}</p>
           </div>
           <div>
             <p class="text-2xl font-bold tabular-nums">{{ me.ranking.quizzes_completed }}</p>
-            <p class="text-xs text-primary-foreground/80">Quizzes</p>
+            <p class="text-xs text-primary-foreground/80">{{ $t('rankings.quizzesCompleted') }}</p>
           </div>
         </div>
       </CardContent>
@@ -64,12 +64,12 @@ const podiumStyle: Record<number, string> = {
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <th class="px-4 py-3 font-medium sm:px-6">Rank</th>
-                <th class="px-4 py-3 font-medium sm:px-6">Student</th>
-                <th class="px-4 py-3 text-right font-medium sm:px-6">Points</th>
-                <th class="hidden px-4 py-3 text-right font-medium sm:table-cell sm:px-6">Avg score</th>
-                <th class="hidden px-4 py-3 text-right font-medium md:table-cell sm:px-6">Best</th>
-                <th class="hidden px-4 py-3 text-right font-medium lg:table-cell sm:px-6">Quizzes</th>
+                <th class="px-4 py-3 font-medium sm:px-6">{{ $t('rankings.rank') }}</th>
+                <th class="px-4 py-3 font-medium sm:px-6">{{ $t('rankings.student') }}</th>
+                <th class="px-4 py-3 text-right font-medium sm:px-6">{{ $t('rankings.points') }}</th>
+                <th class="hidden px-4 py-3 text-right font-medium sm:table-cell sm:px-6">{{ $t('rankings.avgScore') }}</th>
+                <th class="hidden px-4 py-3 text-right font-medium md:table-cell sm:px-6">{{ $t('rankings.best') }}</th>
+                <th class="hidden px-4 py-3 text-right font-medium lg:table-cell sm:px-6">{{ $t('rankings.quizzesCompleted') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -92,7 +92,7 @@ const podiumStyle: Record<number, string> = {
                     <Avatar :name="row.name" class="size-8" />
                     <span class="font-medium">
                       {{ row.name }}
-                      <Badge v-if="row.is_current_user" variant="default" class="ml-1">You</Badge>
+                      <Badge v-if="row.is_current_user" variant="default" class="ml-1">{{ $t('rankings.you') }}</Badge>
                     </span>
                   </div>
                 </td>

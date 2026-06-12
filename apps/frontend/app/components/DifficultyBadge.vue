@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import type { Difficulty } from '~/types'
 
-const props = defineProps<{ difficulty: Difficulty }>()
+defineProps<{ difficulty: Difficulty }>()
+const { t } = useI18n()
 
-const map: Record<Difficulty, { label: string; variant: 'success' | 'warning' | 'destructive' }> = {
-  easy: { label: 'Easy', variant: 'success' },
-  medium: { label: 'Medium', variant: 'warning' },
-  hard: { label: 'Hard', variant: 'destructive' },
+const variants: Record<Difficulty, 'success' | 'warning' | 'destructive'> = {
+  easy: 'success',
+  medium: 'warning',
+  hard: 'destructive',
 }
 </script>
 
 <template>
-  <Badge :variant="map[difficulty].variant">{{ map[difficulty].label }}</Badge>
+  <Badge :variant="variants[difficulty]">{{ t(`difficulty.${difficulty}`) }}</Badge>
 </template>

@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use App\Support\ApiResponse;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -24,6 +27,38 @@ class AuthController extends Controller
     public function __construct(private readonly ActivityLogger $activity) {}
 
     /**
+     * Self-service student registration. The account is active immediately and
+     * the student is logged in straight away (a token is issued in the same
+     * response, mirroring the login payload).
+     */
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $user = User::create([
+            'name' => $request->string('name'),
+            'email' => $request->string('email'),
+            'password' => Hash::make((string) $request->input('password')),
+            'is_active' => true,
+        ]);
+
+        $user->syncRoles([UserRole::Student->value]);
+
+        event(new Registered($user));
+
+        $token = $user->createToken('api-token', ['*'], now()->addDays(30))->plainTextToken;
+
+        $user->forceFill(['last_login_at' => now()])->save();
+        $user->load('roles');
+
+        $this->activity->log('auth.registered', $user->name.' registered', user: $user);
+
+        return ApiResponse::success([
+            'token' => $token,
+            'user' => new UserResource($user),
+            'permissions' => $user->getAllPermissions()->pluck('name')->all(),
+        ], __('messages.auth.registered'), 201);
+    }
+
+    /**
      * Authenticate a user and issue a Sanctum token.
      */
     public function login(LoginRequest $request): JsonResponse
@@ -32,12 +67,12 @@ class AuthController extends Controller
 
         if ($user === null || ! Hash::check((string) $request->input('password'), $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['These credentials do not match our records.'],
+                'email' => [__('messages.auth.invalid_credentials')],
             ]);
         }
 
         if (! $user->is_active) {
-            return ApiResponse::error('Your account has been disabled. Please contact an administrator.', 403);
+            return ApiResponse::error(__('messages.auth.account_disabled'), 403);
         }
 
         $expiresAt = $request->boolean('remember') ? now()->addDays(30) : now()->addHours(12);
@@ -52,7 +87,7 @@ class AuthController extends Controller
             'token' => $token,
             'user' => new UserResource($user),
             'permissions' => $user->getAllPermissions()->pluck('name')->all(),
-        ], 'Signed in successfully.');
+        ], __('messages.auth.signed_in'));
     }
 
     /**
@@ -65,7 +100,7 @@ class AuthController extends Controller
 
         $user?->currentAccessToken()?->delete();
 
-        return ApiResponse::message('Signed out successfully.');
+        return ApiResponse::message(__('messages.auth.signed_out'));
     }
 
     /**
@@ -89,9 +124,9 @@ class AuthController extends Controller
         $status = Password::sendResetLink($request->only('email'));
 
         // Always return a generic message to avoid user enumeration.
-        return ApiResponse::message(__($status === Password::RESET_LINK_SENT
-            ? 'If that email exists, a reset link has been sent.'
-            : 'If that email exists, a reset link has been sent.'));
+        unset($status);
+
+        return ApiResponse::message(__('messages.auth.reset_link_sent'));
     }
 
     /**
@@ -119,6 +154,6 @@ class AuthController extends Controller
             ]);
         }
 
-        return ApiResponse::message('Your password has been reset. You can now sign in.');
+        return ApiResponse::message(__('messages.auth.password_reset'));
     }
 }

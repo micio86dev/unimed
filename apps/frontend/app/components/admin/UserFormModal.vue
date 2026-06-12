@@ -4,6 +4,7 @@ import type { User } from '~/types'
 const props = defineProps<{ open: boolean; user?: User | null }>()
 const emit = defineEmits<{ 'update:open': [value: boolean]; saved: [] }>()
 
+const { t } = useI18n()
 const { success, error: toastError } = useToast()
 
 const form = reactive({
@@ -63,12 +64,12 @@ async function submit() {
     } else {
       await api('/admin/users', { method: 'POST', body: base })
     }
-    success(isEdit.value ? 'User updated' : 'User created')
+    success(isEdit.value ? t('admin.userUpdated') : t('admin.userCreated'))
     emit('saved')
     emit('update:open', false)
   } catch (e) {
     errors.value = apiValidationErrors(e)
-    if (!Object.keys(errors.value).length) toastError('Could not save', apiErrorMessage(e))
+    if (!Object.keys(errors.value).length) toastError(t('admin.couldNotSave'), apiErrorMessage(e))
   } finally {
     saving.value = false
   }
@@ -78,48 +79,48 @@ async function submit() {
 <template>
   <Modal :open="open" @update:open="emit('update:open', $event)">
     <div class="mb-4">
-      <h2 class="text-lg font-semibold tracking-tight">{{ isEdit ? 'Edit user' : 'New user' }}</h2>
-      <p class="text-sm text-muted-foreground">{{ isEdit ? 'Update account details.' : 'Create a student or admin account.' }}</p>
+      <h2 class="text-lg font-semibold tracking-tight">{{ isEdit ? $t('admin.editUser') : $t('admin.newUserTitle') }}</h2>
+      <p class="text-sm text-muted-foreground">{{ isEdit ? $t('admin.updateAccount') : $t('admin.createAccountDesc') }}</p>
     </div>
 
     <div class="space-y-4">
       <div class="space-y-1.5">
-        <Label for="u-name">Full name</Label>
+        <Label for="u-name">{{ $t('admin.fullName') }}</Label>
         <Input id="u-name" v-model="form.name" placeholder="Jane Doe" :invalid="!!errors.name" />
         <p v-if="errors.name" class="text-xs text-destructive">{{ errors.name }}</p>
       </div>
       <div class="space-y-1.5">
-        <Label for="u-email">Email</Label>
+        <Label for="u-email">{{ $t('admin.email') }}</Label>
         <Input id="u-email" v-model="form.email" type="email" placeholder="jane@example.com" :invalid="!!errors.email" />
         <p v-if="errors.email" class="text-xs text-destructive">{{ errors.email }}</p>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <Label>Role</Label>
-          <Select v-model="form.role" :options="[{ label: 'Student', value: 'student' }, { label: 'Admin', value: 'admin' }]" />
+          <Label>{{ $t('admin.role') }}</Label>
+          <Select v-model="form.role" :options="[{ label: $t('nav.student'), value: 'student' }, { label: $t('nav.admin'), value: 'admin' }]" />
         </div>
         <div class="flex items-end pb-2">
           <label class="flex items-center gap-2 text-sm">
-            <Switch v-model="form.is_active" /> <span class="text-muted-foreground">Active</span>
+            <Switch v-model="form.is_active" /> <span class="text-muted-foreground">{{ $t('admin.active') }}</span>
           </label>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <Label for="u-pass">{{ isEdit ? 'New password' : 'Password' }}</Label>
-          <Input id="u-pass" v-model="form.password" type="password" :placeholder="isEdit ? 'Leave blank to keep' : '••••••••'" :invalid="!!errors.password" />
+          <Label for="u-pass">{{ isEdit ? $t('auth.newPassword') : $t('admin.password') }}</Label>
+          <Input id="u-pass" v-model="form.password" type="password" :placeholder="isEdit ? $t('admin.leaveBlankKeep') : '••••••••'" :invalid="!!errors.password" />
           <p v-if="errors.password" class="text-xs text-destructive">{{ errors.password }}</p>
         </div>
         <div class="space-y-1.5">
-          <Label for="u-pass2">Confirm</Label>
+          <Label for="u-pass2">{{ $t('admin.confirm') }}</Label>
           <Input id="u-pass2" v-model="form.password_confirmation" type="password" placeholder="••••••••" />
         </div>
       </div>
     </div>
 
     <div class="mt-5 flex justify-end gap-2 border-t border-border pt-4">
-      <Button variant="outline" @click="emit('update:open', false)">Cancel</Button>
-      <Button :loading="saving" @click="submit">{{ isEdit ? 'Save changes' : 'Create user' }}</Button>
+      <Button variant="outline" @click="emit('update:open', false)">{{ $t('admin.cancel') }}</Button>
+      <Button :loading="saving" @click="submit">{{ isEdit ? $t('admin.saveChanges') : $t('admin.createUser') }}</Button>
     </div>
   </Modal>
 </template>

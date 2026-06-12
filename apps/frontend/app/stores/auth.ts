@@ -7,6 +7,13 @@ interface LoginPayload {
   remember?: boolean
 }
 
+interface RegisterPayload {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const permissions = ref<string[]>([])
@@ -32,6 +39,22 @@ export const useAuthStore = defineStore('auth', () => {
     setToken(res.data.token)
     user.value = res.data.user
     // Permissions come back with the login response — no extra round-trip needed.
+    permissions.value = res.data.permissions ?? []
+    if (!res.data.permissions) await fetchMe()
+  }
+
+  /** Self-service student sign-up. The API returns a token, so we are logged in immediately. */
+  async function register(payload: RegisterPayload) {
+    const api = useApi()
+    const res = await api<{ data: { token: string; user: User; permissions?: string[] } }>(
+      '/auth/register',
+      {
+        method: 'POST',
+        body: payload,
+      },
+    )
+    setToken(res.data.token)
+    user.value = res.data.user
     permissions.value = res.data.permissions ?? []
     if (!res.data.permissions) await fetchMe()
   }
@@ -93,6 +116,7 @@ export const useAuthStore = defineStore('auth', () => {
     isStudent,
     can,
     login,
+    register,
     logout,
     fetchMe,
     clearSession,

@@ -65,7 +65,7 @@ async function logout() {
           </div>
           <button
             class="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
-            title="Sign out"
+            :title="$t('nav.signOut')"
             @click="logout"
           >
             <LogOut class="size-4" />
@@ -112,7 +112,7 @@ async function logout() {
         </nav>
         <div class="border-t border-border p-3">
           <Button variant="ghost" class="w-full justify-start text-destructive" @click="logout">
-            <LogOut class="size-4" /> Sign out
+            <LogOut class="size-4" /> {{ $t('nav.signOut') }}
           </Button>
         </div>
       </aside>
@@ -125,10 +125,13 @@ async function logout() {
           <Menu class="size-5" />
         </button>
         <div class="flex-1">
-          <slot name="header" />
+          <slot name="header">
+            <Breadcrumb />
+          </slot>
         </div>
         <div class="flex items-center gap-2">
           <slot name="header-actions" />
+          <LanguageSwitcher />
           <Avatar :name="auth.user?.name" :src="auth.user?.avatar_url" class="lg:hidden" />
         </div>
       </header>

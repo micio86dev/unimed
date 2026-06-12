@@ -26,6 +26,7 @@ export function useAuthCookie() {
 export function useApi(): $Fetch {
   const config = useRuntimeConfig()
   const token = useAuthToken()
+  const locale = useState<'it' | 'en'>('locale', () => 'it')
 
   return $fetch.create({
     baseURL: config.public.apiBase,
@@ -34,6 +35,9 @@ export function useApi(): $Fetch {
       if (token.value) {
         options.headers.set('Authorization', `Bearer ${token.value}`)
       }
+      // Let the API localise its messages/validation to the active language.
+      options.headers.set('X-Locale', locale.value)
+      options.headers.set('Accept-Language', locale.value)
     },
     onResponseError({ response }) {
       if (response.status === 401) {

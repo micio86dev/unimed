@@ -4,6 +4,7 @@ import type { Paginated, Quiz } from '~/types'
 
 definePageMeta({ middleware: 'auth' })
 
+const { t } = useI18n()
 const search = ref('')
 const difficulty = ref('')
 const debouncedSearch = refDebounced(search, 300)
@@ -20,22 +21,22 @@ const { data, pending } = await useAsyncData(
   { watch: [query] },
 )
 
-const difficultyOptions = [
-  { label: 'All difficulties', value: '' },
-  { label: 'Easy', value: 'easy' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Hard', value: 'hard' },
-]
+const difficultyOptions = computed(() => [
+  { label: t('common.all'), value: '' },
+  { label: t('difficulty.easy'), value: 'easy' },
+  { label: t('difficulty.medium'), value: 'medium' },
+  { label: t('difficulty.hard'), value: 'hard' },
+])
 </script>
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Quiz library" description="Pick a simulation and start practising." />
+    <PageHeader :title="$t('quizzes.title')" :description="$t('quizzes.subtitle')" />
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div class="relative flex-1">
         <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input v-model="search" placeholder="Search quizzes…" class="pl-9" />
+        <Input v-model="search" :placeholder="$t('quizzes.searchPlaceholder')" class="pl-9" />
       </div>
       <Select v-model="difficulty" :options="difficultyOptions" class="sm:w-48" />
     </div>
@@ -47,8 +48,8 @@ const difficultyOptions = [
     <EmptyState
       v-else-if="!data?.data.length"
       :icon="Sparkles"
-      title="No quizzes found"
-      description="Try adjusting your search or filters."
+      :title="$t('quizzes.noQuizzes')"
+      :description="$t('quizzes.noQuizzesDesc')"
     />
 
     <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -66,17 +67,17 @@ const difficultyOptions = [
               <Wand2 class="size-3" /> Auto
             </Badge>
           </div>
-          <CardTitle class="line-clamp-1">{{ quiz.title }}</CardTitle>
-          <CardDescription class="line-clamp-2">{{ quiz.description }}</CardDescription>
+          <CardTitle class="line-clamp-1">{{ $tf(quiz, 'title') }}</CardTitle>
+          <CardDescription class="line-clamp-2">{{ $tf(quiz, 'description') }}</CardDescription>
         </CardHeader>
         <CardFooter class="justify-between">
           <div class="flex items-center gap-4 text-xs text-muted-foreground">
             <span class="flex items-center gap-1"><ListChecks class="size-3.5" /> {{ quiz.question_count }} Q</span>
             <span v-if="quiz.time_limit_minutes" class="flex items-center gap-1">
-              <Clock class="size-3.5" /> {{ quiz.time_limit_minutes }} min
+              <Clock class="size-3.5" /> {{ quiz.time_limit_minutes }} {{ $t('quizzes.minutes') }}
             </span>
           </div>
-          <Button size="sm" variant="secondary">Start</Button>
+          <Button size="sm" variant="secondary">{{ $t('quizzes.start') }}</Button>
         </CardFooter>
       </Card>
     </div>

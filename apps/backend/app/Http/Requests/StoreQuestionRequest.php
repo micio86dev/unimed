@@ -27,11 +27,14 @@ class StoreQuestionRequest extends FormRequest
             'type' => ['required', Rule::in(QuestionType::values())],
             'difficulty' => ['required', Rule::in(Difficulty::values())],
             'text' => ['required', 'string', 'max:5000'],
+            'text_it' => ['nullable', 'string', 'max:5000'],
             'explanation' => ['nullable', 'string', 'max:5000'],
+            'explanation_it' => ['nullable', 'string', 'max:5000'],
             'image_path' => ['nullable', 'string', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],
             'answers' => ['required', 'array', 'min:2', 'max:6'],
             'answers.*.text' => ['required', 'string', 'max:2000'],
+            'answers.*.text_it' => ['nullable', 'string', 'max:2000'],
             'answers.*.is_correct' => ['required', 'boolean'],
         ];
     }
@@ -43,13 +46,13 @@ class StoreQuestionRequest extends FormRequest
             $correct = collect($answers)->filter(fn ($a) => filter_var($a['is_correct'] ?? false, FILTER_VALIDATE_BOOL))->count();
 
             if ($correct < 1) {
-                $validator->errors()->add('answers', 'At least one answer must be marked as correct.');
+                $validator->errors()->add('answers', __('messages.question.at_least_one_correct'));
 
                 return;
             }
 
             if ($this->input('type') === QuestionType::Single->value && $correct !== 1) {
-                $validator->errors()->add('answers', 'Single-choice questions must have exactly one correct answer.');
+                $validator->errors()->add('answers', __('messages.question.single_choice_one_correct'));
             }
         });
     }

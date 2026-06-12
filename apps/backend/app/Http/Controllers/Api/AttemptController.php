@@ -56,14 +56,14 @@ class AttemptController extends Controller
         $quiz = Quiz::query()->published()->findOrFail($validated['quiz_id']);
 
         if ($quiz->question_count === 0) {
-            return ApiResponse::error('This quiz has no questions yet.', 422);
+            return ApiResponse::error(__('messages.attempt.quiz_empty'), 422);
         }
 
         $attempt = $this->starter->handle($request->user(), $quiz);
 
         $this->activity->log('attempt.started', 'Started "'.$quiz->title.'"', $attempt);
 
-        return ApiResponse::success($this->presenter->take($attempt), 'Attempt started.', 201);
+        return ApiResponse::success($this->presenter->take($attempt), __('messages.attempt.started'), 201);
     }
 
     /**
@@ -74,7 +74,7 @@ class AttemptController extends Controller
         $this->ensureOwner($request, $attempt);
 
         if ($attempt->status !== AttemptStatus::InProgress) {
-            return ApiResponse::error('This attempt has already been submitted.', 409);
+            return ApiResponse::error(__('messages.attempt.already_submitted'), 409);
         }
 
         return ApiResponse::success($this->presenter->take($attempt));
@@ -91,7 +91,7 @@ class AttemptController extends Controller
         $answer = $attempt->answers()->where('question_id', $request->integer('question_id'))->first();
 
         if ($answer === null) {
-            return ApiResponse::error('That question is not part of this attempt.', 422);
+            return ApiResponse::error(__('messages.attempt.question_not_in_attempt'), 422);
         }
 
         $selected = array_values(array_map('intval', $request->input('selected_answer_ids', [])));
@@ -105,7 +105,7 @@ class AttemptController extends Controller
         return ApiResponse::success([
             'question_id' => $answer->question_id,
             'is_answered' => $answer->is_answered,
-        ], 'Saved.');
+        ], __('messages.attempt.saved'));
     }
 
     /**
@@ -126,7 +126,7 @@ class AttemptController extends Controller
             ['percentage' => $attempt->percentage, 'points' => $attempt->points],
         );
 
-        return ApiResponse::success($this->presenter->result($attempt), 'Attempt submitted.');
+        return ApiResponse::success($this->presenter->result($attempt), __('messages.attempt.submitted'));
     }
 
     /**
@@ -137,7 +137,7 @@ class AttemptController extends Controller
         $this->ensureOwner($request, $attempt);
 
         if ($attempt->status !== AttemptStatus::Completed) {
-            return ApiResponse::error('This attempt has not been completed yet.', 409);
+            return ApiResponse::error(__('messages.attempt.not_completed'), 409);
         }
 
         return ApiResponse::success($this->presenter->result($attempt));
@@ -145,11 +145,11 @@ class AttemptController extends Controller
 
     private function ensureOwner(Request $request, QuizAttempt $attempt): void
     {
-        abort_unless($attempt->user_id === $request->user()->id, 403, 'This attempt does not belong to you.');
+        abort_unless($attempt->user_id === $request->user()->id, 403, __('messages.attempt.not_owner'));
     }
 
     private function ensureInProgress(QuizAttempt $attempt): void
     {
-        abort_unless($attempt->status === AttemptStatus::InProgress, 409, 'This attempt is no longer in progress.');
+        abort_unless($attempt->status === AttemptStatus::InProgress, 409, __('messages.attempt.not_in_progress'));
     }
 }

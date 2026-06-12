@@ -74,7 +74,7 @@ class QuizController extends Controller
 
         return ApiResponse::success(
             new QuizResource($quiz->load(['questions.subject'])),
-            'Quiz created.',
+            __('messages.quiz.created'),
             201,
         );
     }
@@ -92,7 +92,7 @@ class QuizController extends Controller
 
         return ApiResponse::success(
             new QuizResource($quiz->fresh(['questions.subject'])),
-            'Quiz updated.',
+            __('messages.quiz.updated'),
         );
     }
 
@@ -101,6 +101,6 @@ class QuizController extends Controller
         $this->activity->log('quiz.deleted', 'Deleted quiz "'.$quiz->title.'"', $quiz);
         $quiz->delete();
 
-        return ApiResponse::message('Quiz deleted.');
+        return ApiResponse::message(__('messages.quiz.deleted'));
     }
 }

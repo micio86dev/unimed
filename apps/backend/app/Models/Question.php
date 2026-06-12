@@ -23,7 +23,9 @@ class Question extends Model
         'type',
         'difficulty',
         'text',
+        'text_it',
         'explanation',
+        'explanation_it',
         'image_path',
         'is_active',
         'created_by',
@@ -112,6 +114,9 @@ class Question extends Model
             return;
         }
 
-        $query->where('text', 'like', '%'.$term.'%');
+        $query->where(function (Builder $q) use ($term): void {
+            $q->where('text', 'like', '%'.$term.'%')
+                ->orWhere('text_it', 'like', '%'.$term.'%');
+        });
     }
 }

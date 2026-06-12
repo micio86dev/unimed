@@ -40,10 +40,12 @@ final class AttemptPresenter
                 'difficulty' => $q->difficulty->value,
                 'subject' => $this->subjectStub($q),
                 'text' => $q->text,
+                'text_it' => $q->text_it,
                 'image_url' => $q->image_path !== null ? Storage::disk('public')->url($q->image_path) : null,
                 'answers' => $q->answers->map(static fn ($a): array => [
                     'id' => $a->id,
                     'text' => $a->text,
+                    'text_it' => $a->text_it,
                 ])->values()->all(),
                 'selected_answer_ids' => $saved[$q->id]['selected_answer_ids'] ?? [],
                 'is_answered' => $saved[$q->id]['is_answered'] ?? false,
@@ -82,14 +84,17 @@ final class AttemptPresenter
                 'question' => [
                     'id' => $question->id,
                     'text' => $question->text,
+                    'text_it' => $question->text_it,
                     'type' => $question->type->value,
                     'difficulty' => $question->difficulty->value,
                     'explanation' => $question->explanation,
+                    'explanation_it' => $question->explanation_it,
                     'subject' => $this->subjectStub($question),
                 ],
                 'options' => $question->answers->map(static fn ($a): array => [
                     'id' => $a->id,
                     'text' => $a->text,
+                    'text_it' => $a->text_it,
                     'is_correct' => $a->is_correct,
                 ])->values()->all(),
                 'selected_answer_ids' => array_values($selected),
@@ -101,6 +106,7 @@ final class AttemptPresenter
             $slug = $question->subject?->slug ?? 'unknown';
             $bySubject[$slug] ??= [
                 'subject' => $question->subject?->name ?? 'Unknown',
+                'subject_it' => $question->subject?->name_it ?? $question->subject?->name ?? 'Unknown',
                 'slug' => $slug,
                 'color' => $question->subject?->color ?? '#94A3B8',
                 'total' => 0,
@@ -160,6 +166,7 @@ final class AttemptPresenter
         return [
             'id' => $question->subject?->id,
             'name' => $question->subject?->name,
+            'name_it' => $question->subject?->name_it ?? $question->subject?->name,
             'slug' => $question->subject?->slug,
             'color' => $question->subject?->color,
         ];

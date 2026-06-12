@@ -26,6 +26,6 @@ class UploadController extends Controller
         return ApiResponse::success([
             'path' => $path,
             'url' => Storage::disk('public')->url($path),
-        ], 'Image uploaded.', 201);
+        ], __('messages.upload.image_uploaded'), 201);
     }
 }

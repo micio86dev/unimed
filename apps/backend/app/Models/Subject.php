@@ -15,8 +15,10 @@ class Subject extends Model
 
     protected $fillable = [
         'name',
+        'name_it',
         'slug',
         'description',
+        'description_it',
         'color',
         'icon',
         'position',
